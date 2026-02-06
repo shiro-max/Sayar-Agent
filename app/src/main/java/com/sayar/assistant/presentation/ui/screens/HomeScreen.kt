@@ -11,19 +11,28 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ExitToApp
 import androidx.compose.material.icons.filled.CalendarMonth
+import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.Cloud
+import androidx.compose.material.icons.filled.CloudOff
+import androidx.compose.material.icons.filled.Error
 import androidx.compose.material.icons.filled.People
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -31,6 +40,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
@@ -39,6 +49,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
 import com.sayar.assistant.R
 import com.sayar.assistant.presentation.viewmodel.AuthViewModel
+import com.sayar.assistant.presentation.viewmodel.DriveSetupState
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -50,6 +61,7 @@ fun HomeScreen(
     viewModel: AuthViewModel = hiltViewModel()
 ) {
     val currentUser by viewModel.currentUser.collectAsState()
+    val driveSetupState by viewModel.driveSetupState.collectAsState()
 
     Scaffold(
         topBar = {
@@ -103,6 +115,12 @@ fun HomeScreen(
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
+            // Drive Status Card
+            DriveStatusCard(
+                state = driveSetupState,
+                onRetry = { viewModel.retryDriveSetup() }
+            )
+
             HomeMenuCard(
                 title = stringResource(R.string.timetable),
                 description = "View and manage your class schedule",
@@ -123,6 +141,108 @@ fun HomeScreen(
                 icon = Icons.Default.Settings,
                 onClick = onNavigateToSettings
             )
+        }
+    }
+}
+
+@Composable
+private fun DriveStatusCard(
+    state: DriveSetupState,
+    onRetry: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val (icon, iconTint, statusText, backgroundColor) = when (state) {
+        is DriveSetupState.Idle -> Quadruple(
+            Icons.Default.Cloud,
+            MaterialTheme.colorScheme.outline,
+            "Cloud storage initializing...",
+            MaterialTheme.colorScheme.surfaceVariant
+        )
+        is DriveSetupState.Loading -> Quadruple(
+            Icons.Default.Cloud,
+            MaterialTheme.colorScheme.primary,
+            "Setting up cloud storage...",
+            MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f)
+        )
+        is DriveSetupState.Success -> Quadruple(
+            Icons.Default.CheckCircle,
+            MaterialTheme.colorScheme.tertiary,
+            "Cloud storage ready",
+            MaterialTheme.colorScheme.tertiaryContainer.copy(alpha = 0.3f)
+        )
+        is DriveSetupState.Error -> Quadruple(
+            Icons.Default.Error,
+            MaterialTheme.colorScheme.error,
+            "Cloud setup failed",
+            MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.3f)
+        )
+        is DriveSetupState.Disabled -> Quadruple(
+            Icons.Default.CloudOff,
+            MaterialTheme.colorScheme.outline,
+            "Cloud storage disabled",
+            MaterialTheme.colorScheme.surfaceVariant
+        )
+    }
+
+    Surface(
+        modifier = modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(12.dp),
+        color = backgroundColor
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            if (state is DriveSetupState.Loading) {
+                CircularProgressIndicator(
+                    modifier = Modifier.size(24.dp),
+                    strokeWidth = 2.dp
+                )
+            } else {
+                Icon(
+                    imageVector = icon,
+                    contentDescription = null,
+                    tint = iconTint,
+                    modifier = Modifier.size(24.dp)
+                )
+            }
+
+            Spacer(modifier = Modifier.width(12.dp))
+
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = statusText,
+                    style = MaterialTheme.typography.bodyMedium
+                )
+                if (state is DriveSetupState.Success) {
+                    Text(
+                        text = "Folder: ${state.folders.userEmail}",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+                if (state is DriveSetupState.Error) {
+                    Text(
+                        text = state.message,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.error
+                    )
+                }
+            }
+
+            if (state is DriveSetupState.Error) {
+                TextButton(onClick = onRetry) {
+                    Icon(
+                        imageVector = Icons.Default.Refresh,
+                        contentDescription = "Retry",
+                        modifier = Modifier.size(18.dp)
+                    )
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text("Retry")
+                }
+            }
         }
     }
 }
@@ -170,3 +290,10 @@ private fun HomeMenuCard(
         }
     }
 }
+
+private data class Quadruple<A, B, C, D>(
+    val first: A,
+    val second: B,
+    val third: C,
+    val fourth: D
+)

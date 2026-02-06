@@ -135,6 +135,7 @@ dependencies {
     implementation(libs.credentials.play.services)
     implementation(libs.google.api.client)
     implementation(libs.google.drive)
+    implementation(libs.google.auth.oauth2)
 
     // ML Kit
     implementation(libs.mlkit.text.recognition)

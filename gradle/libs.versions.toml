@@ -63,6 +63,7 @@ credentials = { group = "androidx.credentials", name = "credentials", version = 
 credentials-play-services = { group = "androidx.credentials", name = "credentials-play-services-auth", version = "1.2.2" }
 google-api-client = { group = "com.google.api-client", name = "google-api-client-android", version.ref = "googleApiClient" }
 google-drive = { group = "com.google.apis", name = "google-api-services-drive", version.ref = "googleDrive" }
+google-auth-oauth2 = { group = "com.google.auth", name = "google-auth-library-oauth2-http", version = "1.23.0" }
 
 # ML Kit
 mlkit-text-recognition = { group = "com.google.mlkit", name = "text-recognition", version.ref = "mlkitTextRecognition" }

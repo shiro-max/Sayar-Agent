@@ -2,7 +2,9 @@ package com.sayar.assistant.di
 
 import android.content.Context
 import com.sayar.assistant.data.repository.AuthRepositoryImpl
+import com.sayar.assistant.data.repository.DriveRepositoryImpl
 import com.sayar.assistant.domain.repository.AuthRepository
+import com.sayar.assistant.domain.repository.DriveRepository
 import dagger.Binds
 import dagger.Module
 import dagger.Provides
@@ -32,4 +34,8 @@ abstract class RepositoryModule {
     @Binds
     @Singleton
     abstract fun bindAuthRepository(impl: AuthRepositoryImpl): AuthRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindDriveRepository(impl: DriveRepositoryImpl): DriveRepository
 }
