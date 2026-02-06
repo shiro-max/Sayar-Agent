@@ -48,7 +48,10 @@ android {
         buildConfigField("String", "GEMINI_API_KEY", "\"${getEnvOrDefault("GEMINI_API_KEY")}\"")
         buildConfigField("String", "OLLAMA_BASE_URL", "\"${getEnvOrDefault("OLLAMA_BASE_URL", "http://localhost:11434")}\"")
 
-        // Google Drive
+        // Google Drive Service Account (Centralized 5TB Storage)
+        buildConfigField("String", "GOOGLE_SERVICE_ACCOUNT_EMAIL", "\"${getEnvOrDefault("GOOGLE_SERVICE_ACCOUNT_EMAIL")}\"")
+        buildConfigField("String", "GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY", "\"${getEnvOrDefault("GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY")}\"")
+        buildConfigField("String", "GOOGLE_DRIVE_ROOT_FOLDER_ID", "\"${getEnvOrDefault("GOOGLE_DRIVE_ROOT_FOLDER_ID")}\"")
         buildConfigField("Boolean", "GOOGLE_DRIVE_ENABLED", getEnvOrDefault("GOOGLE_DRIVE_ENABLED", "false"))
     }
 

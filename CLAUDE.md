@@ -75,13 +75,39 @@ app/src/main/java/com/sayar/assistant/
 - OCR: ML Kit Text Recognition
 - Async: Coroutines + Flow
 
+## Storage Strategy
+
+**Primary Storage:** Centralized Google Drive Enterprise (5TB)
+
+**Authentication:** Service Account with domain-wide delegation (not per-user OAuth)
+
+**Folder Structure:**
+```
+Root/
+├── Grades/
+│   ├── Grade_1/
+│   │   ├── Teacher_001/
+│   │   │   ├── Timetables/
+│   │   │   ├── Students/
+│   │   │   └── Documents/
+│   │   └── Teacher_002/
+│   ├── Grade_2/
+│   └── ...
+```
+
+**Service Account Setup:**
+1. Create Service Account in Google Cloud Console
+2. Enable Domain-Wide Delegation
+3. Download JSON key file
+4. Add `GOOGLE_SERVICE_ACCOUNT_JSON` to `.env`
+
 ## API Endpoints
 
 **OpenAI**: `POST https://api.openai.com/v1/chat/completions`
 
 **Ollama**: `POST http://<local_ip>:11434/api/generate`
 
-**Google Drive**: Scopes `drive.file`, `drive.appdata`
+**Google Drive**: Service Account with `drive` scope for centralized access
 
 ## Setup Requirements
 
