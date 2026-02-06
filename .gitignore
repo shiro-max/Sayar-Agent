@@ -54,12 +54,13 @@ captures/
 secrets.properties
 CLAUDE.local.md
 
-# Service Account Keys (NEVER commit these!)
+# Service Account Keys (NEVER commit real credentials!)
 # တကယ်လို့ Firebase သုံးရင် google-services.json ကို ချန်ထားလို့ရပေမယ့် Service Account key ကိုတော့ ဖျက်ရပါမယ်
-**/service_account*.json
 **/credentials*.json
 **/client_secret*.json
-app/src/main/res/raw/service_account_key.json
+# Real service account keys - NEVER commit!
+*.json.real
+# Note: service_account_key.json in raw/ contains placeholder - replace locally with real credentials
 
 # Android Specific
 captures/

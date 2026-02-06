@@ -13,6 +13,7 @@ import com.sayar.assistant.domain.repository.DriveRepository
 import com.sayar.assistant.domain.repository.FolderType
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
@@ -161,25 +162,18 @@ class DriveRepositoryImpl @Inject constructor(
     }
 
     private suspend fun getCachedFolders(): UserDriveFolders? {
-        return context.driveDataStore.data.map { preferences ->
-            preferences[PreferencesKeys.USER_FOLDERS]?.let { data ->
-                try {
-                    json.decodeFromString<UserDriveFolders>(data)
-                } catch (e: Exception) {
-                    null
+        return try {
+            context.driveDataStore.data.map { preferences ->
+                preferences[PreferencesKeys.USER_FOLDERS]?.let { data ->
+                    try {
+                        json.decodeFromString<UserDriveFolders>(data)
+                    } catch (e: Exception) {
+                        null
+                    }
                 }
-            }
-        }.let { flow ->
-            kotlinx.coroutines.flow.firstOrNull(flow)
+            }.first()
+        } catch (e: Exception) {
+            null
         }
     }
-}
-
-private suspend fun <T> kotlinx.coroutines.flow.firstOrNull(flow: Flow<T>): T? {
-    var result: T? = null
-    flow.collect { value ->
-        result = value
-        return@collect
-    }
-    return result
 }
