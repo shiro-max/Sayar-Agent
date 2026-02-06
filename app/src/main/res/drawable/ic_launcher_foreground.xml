@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <!-- Background circle padding for adaptive icon -->
+    <group android:translateX="22" android:translateY="22">
+        <!-- Book/School icon representing teacher assistant -->
+        <path
+            android:fillColor="#FFFFFF"
+            android:pathData="M32,8 L32,56 L0,56 L0,8 C0,3.6 3.6,0 8,0 L24,0 C28.4,0 32,3.6 32,8 Z"/>
+        <path
+            android:fillColor="#E3F2FD"
+            android:pathData="M4,12 L28,12 L28,16 L4,16 Z"/>
+        <path
+            android:fillColor="#E3F2FD"
+            android:pathData="M4,20 L28,20 L28,24 L4,24 Z"/>
+        <path
+            android:fillColor="#E3F2FD"
+            android:pathData="M4,28 L20,28 L20,32 L4,32 Z"/>
+        <!-- Pencil -->
+        <path
+            android:fillColor="#FFC107"
+            android:pathData="M52,4 L60,12 L28,44 L20,44 L20,36 Z"/>
+        <path
+            android:fillColor="#FF9800"
+            android:pathData="M60,12 L64,8 L60,4 L52,4 L60,12 Z"/>
+        <path
+            android:fillColor="#FFECB3"
+            android:pathData="M20,36 L28,44 L20,44 Z"/>
+    </group>
+</vector>
