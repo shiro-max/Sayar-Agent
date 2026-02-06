@@ -22,6 +22,8 @@ import androidx.compose.material.icons.filled.Error
 import androidx.compose.material.icons.filled.People
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -29,6 +31,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -37,6 +40,9 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -50,6 +56,8 @@ import coil.compose.AsyncImage
 import com.sayar.assistant.R
 import com.sayar.assistant.presentation.viewmodel.AuthViewModel
 import com.sayar.assistant.presentation.viewmodel.DriveSetupState
+import com.sayar.assistant.presentation.viewmodel.DriveTestViewModel
+import com.sayar.assistant.presentation.viewmodel.DriveTestState
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -58,10 +66,26 @@ fun HomeScreen(
     onNavigateToStudents: () -> Unit,
     onNavigateToSettings: () -> Unit,
     onSignOut: () -> Unit,
-    viewModel: AuthViewModel = hiltViewModel()
+    viewModel: AuthViewModel = hiltViewModel(),
+    driveTestViewModel: DriveTestViewModel = hiltViewModel()
 ) {
     val currentUser by viewModel.currentUser.collectAsState()
     val driveSetupState by viewModel.driveSetupState.collectAsState()
+    val driveTestState by driveTestViewModel.testState.collectAsState()
+
+    var showTestDialog by remember { mutableStateOf(false) }
+
+    // Drive Test Dialog
+    if (showTestDialog) {
+        DriveTestDialog(
+            state = driveTestState,
+            onRunTest = { driveTestViewModel.runConnectionTest() },
+            onDismiss = {
+                showTestDialog = false
+                driveTestViewModel.resetState()
+            }
+        )
+    }
 
     Scaffold(
         topBar = {
@@ -118,7 +142,8 @@ fun HomeScreen(
             // Drive Status Card
             DriveStatusCard(
                 state = driveSetupState,
-                onRetry = { viewModel.retryDriveSetup() }
+                onRetry = { viewModel.retryDriveSetup() },
+                onTest = { showTestDialog = true }
             )
 
             HomeMenuCard(
@@ -149,6 +174,7 @@ fun HomeScreen(
 private fun DriveStatusCard(
     state: DriveSetupState,
     onRetry: () -> Unit,
+    onTest: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val (icon, iconTint, statusText, backgroundColor) = when (state) {
@@ -243,8 +269,118 @@ private fun DriveStatusCard(
                     Text("Retry")
                 }
             }
+
+            if (state is DriveSetupState.Success) {
+                TextButton(onClick = onTest) {
+                    Text("Test")
+                }
+            }
         }
     }
+}
+
+@Composable
+private fun DriveTestDialog(
+    state: DriveTestState,
+    onRunTest: () -> Unit,
+    onDismiss: () -> Unit
+) {
+    AlertDialog(
+        onDismissRequest = {
+            if (state !is DriveTestState.Running) onDismiss()
+        },
+        title = {
+            Text("Drive Connection Test")
+        },
+        text = {
+            Column {
+                when (state) {
+                    is DriveTestState.Idle -> {
+                        Text("This will test the connection to Google Drive by:")
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text("1. Checking folder access")
+                        Text("2. Uploading a test file")
+                        Text("3. Deleting the test file")
+                    }
+                    is DriveTestState.Running -> {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            CircularProgressIndicator(
+                                modifier = Modifier.size(24.dp),
+                                strokeWidth = 2.dp
+                            )
+                            Spacer(modifier = Modifier.width(12.dp))
+                            Text(state.step)
+                        }
+                    }
+                    is DriveTestState.Success -> {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Icon(
+                                imageVector = Icons.Default.CheckCircle,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.tertiary
+                            )
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text(
+                                text = state.message,
+                                color = MaterialTheme.colorScheme.tertiary
+                            )
+                        }
+                        Spacer(modifier = Modifier.height(12.dp))
+                        state.details.forEach { detail ->
+                            Text(
+                                text = detail,
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                    }
+                    is DriveTestState.Error -> {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Icon(
+                                imageVector = Icons.Default.Error,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.error
+                            )
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text(
+                                text = state.message,
+                                color = MaterialTheme.colorScheme.error
+                            )
+                        }
+                    }
+                }
+            }
+        },
+        confirmButton = {
+            when (state) {
+                is DriveTestState.Idle -> {
+                    Button(onClick = onRunTest) {
+                        Text("Run Test")
+                    }
+                }
+                is DriveTestState.Running -> {
+                    // No button while running
+                }
+                is DriveTestState.Success, is DriveTestState.Error -> {
+                    Button(onClick = onDismiss) {
+                        Text("Close")
+                    }
+                }
+            }
+        },
+        dismissButton = {
+            if (state is DriveTestState.Idle) {
+                TextButton(onClick = onDismiss) {
+                    Text("Cancel")
+                }
+            }
+            if (state is DriveTestState.Error) {
+                OutlinedButton(onClick = onRunTest) {
+                    Text("Retry")
+                }
+            }
+        }
+    )
 }
 
 @Composable
