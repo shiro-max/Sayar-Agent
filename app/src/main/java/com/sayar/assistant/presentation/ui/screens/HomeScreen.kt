@@ -197,19 +197,19 @@ private fun DriveStatusCard(
             Icons.Default.Cloud,
             MaterialTheme.colorScheme.primary,
             "Setting up cloud storage...",
-            MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f)
+            MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.5f)
         )
         is DriveSetupState.Success -> Quadruple(
             Icons.Default.CheckCircle,
             MaterialTheme.colorScheme.tertiary,
             "Cloud storage ready",
-            MaterialTheme.colorScheme.tertiaryContainer.copy(alpha = 0.3f)
+            MaterialTheme.colorScheme.tertiaryContainer.copy(alpha = 0.5f)
         )
         is DriveSetupState.Error -> Quadruple(
             Icons.Default.Error,
             MaterialTheme.colorScheme.error,
             "Cloud setup failed",
-            MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.3f)
+            MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.5f)
         )
         is DriveSetupState.Disabled -> Quadruple(
             Icons.Default.CloudOff,
@@ -221,7 +221,7 @@ private fun DriveStatusCard(
 
     Surface(
         modifier = modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(12.dp),
+        shape = RoundedCornerShape(16.dp),
         color = backgroundColor
     ) {
         Row(
@@ -403,6 +403,10 @@ private fun HomeMenuCard(
     Card(
         onClick = onClick,
         modifier = modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(20.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surface
+        ),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
         Row(
@@ -411,19 +415,29 @@ private fun HomeMenuCard(
                 .padding(20.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Icon(
-                imageVector = icon,
-                contentDescription = null,
-                modifier = Modifier.size(48.dp),
-                tint = MaterialTheme.colorScheme.primary
-            )
+            // Icon with soft lavender background circle
+            Surface(
+                shape = CircleShape,
+                color = MaterialTheme.colorScheme.primaryContainer,
+                modifier = Modifier.size(56.dp)
+            ) {
+                Icon(
+                    imageVector = icon,
+                    contentDescription = null,
+                    modifier = Modifier
+                        .padding(14.dp)
+                        .size(28.dp),
+                    tint = MaterialTheme.colorScheme.primary
+                )
+            }
 
             Spacer(modifier = Modifier.width(16.dp))
 
             Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = title,
-                    style = MaterialTheme.typography.titleLarge
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.onSurface
                 )
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(

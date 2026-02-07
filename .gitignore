@@ -46,14 +46,14 @@ captures/
 # External native build folder generated in Android Studio 2.2 and later
 .externalNativeBuild
 .cxx/
-
 # Secrets and API Keys
 .env
 .env.*
 !.env.example
 secrets.properties
 CLAUDE.local.md
-
+CLAUDE.md
+GEMINI.md
 # Service Account Keys (NEVER commit real credentials!)
 # တကယ်လို့ Firebase သုံးရင် google-services.json ကို ချန်ထားလို့ရပေမယ့် Service Account key ကိုတော့ ဖျက်ရပါမယ်
 **/credentials*.json
