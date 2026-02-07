@@ -9,9 +9,8 @@ import com.google.api.services.drive.DriveScopes
 import com.google.api.services.drive.model.File
 import com.google.api.services.drive.model.FileList
 import com.google.auth.http.HttpCredentialsAdapter
-import com.google.auth.oauth2.GoogleCredentials
+import com.google.auth.oauth2.ServiceAccountCredentials
 import com.sayar.assistant.BuildConfig
-import com.sayar.assistant.R
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -44,11 +43,20 @@ class DriveService @Inject constructor(
             .build()
     }
 
-    private fun loadServiceAccountCredentials(): GoogleCredentials {
-        // Load from raw resource file
-        val inputStream: InputStream = context.resources.openRawResource(R.raw.service_account_key)
-        return GoogleCredentials.fromStream(inputStream)
-            .createScoped(listOf(DriveScopes.DRIVE))
+    private fun loadServiceAccountCredentials(): ServiceAccountCredentials {
+        // Load from BuildConfig (sourced from .env file)
+        val email = BuildConfig.GOOGLE_SERVICE_ACCOUNT_EMAIL
+        val privateKeyString = BuildConfig.GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY
+            .replace("\\n", "\n") // Handle escaped newlines from .env
+
+        require(email.isNotBlank()) { "GOOGLE_SERVICE_ACCOUNT_EMAIL not set in .env" }
+        require(privateKeyString.isNotBlank()) { "GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY not set in .env" }
+
+        return ServiceAccountCredentials.newBuilder()
+            .setClientEmail(email)
+            .setPrivateKeyString(privateKeyString)
+            .setScopes(listOf(DriveScopes.DRIVE))
+            .build()
     }
 
     /**
