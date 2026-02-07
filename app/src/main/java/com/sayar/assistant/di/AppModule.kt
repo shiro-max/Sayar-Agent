@@ -26,7 +26,8 @@ object AppModule {
     fun provideJson(): Json = Json {
         ignoreUnknownKeys = true
         isLenient = true
-        encodeDefaults = true
+        encodeDefaults = false
+        explicitNulls = false
     }
 
     @Provides

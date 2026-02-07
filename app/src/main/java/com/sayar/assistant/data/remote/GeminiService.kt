@@ -3,11 +3,13 @@ package com.sayar.assistant.data.remote
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import retrofit2.http.Body
+import retrofit2.http.Headers
 import retrofit2.http.POST
 import retrofit2.http.Query
 
 interface GeminiService {
-    @POST("v1beta/models/gemini-2.5-flash:generateContent")
+    @Headers("Content-Type: application/json")
+    @POST("v1beta/models/gemini-1.5-flash:generateContent")
     suspend fun generateContent(
         @Query("key") apiKey: String,
         @Body request: GeminiRequest
