@@ -89,6 +89,8 @@ class ChatRepository @Inject constructor(
             _isLoading.value = false
             val errorMessage = when {
                 e.message?.contains("401") == true -> "Invalid API key. Please check your Gemini API key in Settings."
+                e.message?.contains("403") == true -> "API key doesn't have access. Enable Generative Language API in Google Cloud Console."
+                e.message?.contains("404") == true -> "API endpoint not found. Please update the app or check API configuration."
                 e.message?.contains("429") == true -> "Rate limit exceeded. Please wait and try again."
                 e.message?.contains("network") == true || e.message?.contains("connect") == true ->
                     "Network error. Please check your internet connection."
