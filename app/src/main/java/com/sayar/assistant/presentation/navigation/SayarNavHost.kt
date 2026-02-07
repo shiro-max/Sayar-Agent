@@ -5,6 +5,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.sayar.assistant.presentation.ui.screens.ChatScreen
 import com.sayar.assistant.presentation.ui.screens.HomeScreen
 import com.sayar.assistant.presentation.ui.screens.LoginScreen
 import com.sayar.assistant.presentation.ui.screens.SettingsScreen
@@ -17,6 +18,7 @@ object Routes {
     const val TIMETABLE = "timetable"
     const val STUDENTS = "students"
     const val SETTINGS = "settings"
+    const val CHAT = "chat"
 }
 
 @Composable
@@ -43,6 +45,7 @@ fun SayarNavHost(
                 onNavigateToTimetable = { navController.navigate(Routes.TIMETABLE) },
                 onNavigateToStudents = { navController.navigate(Routes.STUDENTS) },
                 onNavigateToSettings = { navController.navigate(Routes.SETTINGS) },
+                onNavigateToChat = { navController.navigate(Routes.CHAT) },
                 onSignOut = {
                     navController.navigate(Routes.LOGIN) {
                         popUpTo(Routes.HOME) { inclusive = true }
@@ -65,6 +68,12 @@ fun SayarNavHost(
 
         composable(Routes.SETTINGS) {
             SettingsScreen(
+                onNavigateBack = { navController.popBackStack() }
+            )
+        }
+
+        composable(Routes.CHAT) {
+            ChatScreen(
                 onNavigateBack = { navController.popBackStack() }
             )
         }

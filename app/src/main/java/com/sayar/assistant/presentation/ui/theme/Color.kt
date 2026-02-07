@@ -2,29 +2,29 @@ package com.sayar.assistant.presentation.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
-// Primary colors - Professional blue tones
-val Blue10 = Color(0xFF001F33)
-val Blue20 = Color(0xFF003D66)
-val Blue30 = Color(0xFF005C99)
-val Blue40 = Color(0xFF007ACC)
-val Blue80 = Color(0xFF99CEFF)
-val Blue90 = Color(0xFFCCE7FF)
+// Primary colors - Teal Professional
+val Teal10 = Color(0xFF001F1A)
+val Teal20 = Color(0xFF003D33)
+val Teal30 = Color(0xFF005C4D)
+val Teal40 = Color(0xFF00897B)  // Primary
+val Teal80 = Color(0xFF80CBC4)
+val Teal90 = Color(0xFFB2DFDB)
 
-// Secondary colors - Warm accent
-val Orange10 = Color(0xFF331A00)
-val Orange20 = Color(0xFF663300)
-val Orange30 = Color(0xFF994D00)
-val Orange40 = Color(0xFFCC6600)
-val Orange80 = Color(0xFFFFCC99)
-val Orange90 = Color(0xFFFFE5CC)
+// Secondary colors - Amber accent
+val Amber10 = Color(0xFF331F00)
+val Amber20 = Color(0xFF664000)
+val Amber30 = Color(0xFF996000)
+val Amber40 = Color(0xFFFFB300)
+val Amber80 = Color(0xFFFFE082)
+val Amber90 = Color(0xFFFFECB3)
 
-// Tertiary colors - Success green
-val Green10 = Color(0xFF002211)
-val Green20 = Color(0xFF004422)
-val Green30 = Color(0xFF006633)
-val Green40 = Color(0xFF008844)
-val Green80 = Color(0xFF99DDAA)
-val Green90 = Color(0xFFCCEED5)
+// Tertiary colors - Deep Purple highlights
+val DeepPurple10 = Color(0xFF1A0033)
+val DeepPurple20 = Color(0xFF330066)
+val DeepPurple30 = Color(0xFF4D0099)
+val DeepPurple40 = Color(0xFF7E57C2)
+val DeepPurple80 = Color(0xFFB39DDB)
+val DeepPurple90 = Color(0xFFD1C4E9)
 
 // Error colors
 val Red10 = Color(0xFF330000)

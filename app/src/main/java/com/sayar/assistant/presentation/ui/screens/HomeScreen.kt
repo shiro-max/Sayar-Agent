@@ -15,6 +15,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ExitToApp
 import androidx.compose.material.icons.filled.CalendarMonth
+import androidx.compose.material.icons.filled.Chat
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Cloud
 import androidx.compose.material.icons.filled.CloudOff
@@ -65,6 +66,7 @@ fun HomeScreen(
     onNavigateToTimetable: () -> Unit,
     onNavigateToStudents: () -> Unit,
     onNavigateToSettings: () -> Unit,
+    onNavigateToChat: () -> Unit,
     onSignOut: () -> Unit,
     viewModel: AuthViewModel = hiltViewModel(),
     driveTestViewModel: DriveTestViewModel = hiltViewModel()
@@ -144,6 +146,13 @@ fun HomeScreen(
                 state = driveSetupState,
                 onRetry = { viewModel.retryDriveSetup() },
                 onTest = { showTestDialog = true }
+            )
+
+            HomeMenuCard(
+                title = stringResource(R.string.chat_title),
+                description = stringResource(R.string.chat_description),
+                icon = Icons.Default.Chat,
+                onClick = onNavigateToChat
             )
 
             HomeMenuCard(

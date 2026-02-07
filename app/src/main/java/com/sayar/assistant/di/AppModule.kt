@@ -1,6 +1,9 @@
 package com.sayar.assistant.di
 
 import android.content.Context
+import androidx.room.Room
+import com.sayar.assistant.data.local.AppDatabase
+import com.sayar.assistant.data.local.StudentDao
 import com.sayar.assistant.data.repository.AuthRepositoryImpl
 import com.sayar.assistant.data.repository.DriveRepositoryImpl
 import com.sayar.assistant.domain.repository.AuthRepository
@@ -24,6 +27,22 @@ object AppModule {
         ignoreUnknownKeys = true
         isLenient = true
         encodeDefaults = true
+    }
+
+    @Provides
+    @Singleton
+    fun provideAppDatabase(@ApplicationContext context: Context): AppDatabase {
+        return Room.databaseBuilder(
+            context,
+            AppDatabase::class.java,
+            "sayar_database"
+        ).build()
+    }
+
+    @Provides
+    @Singleton
+    fun provideStudentDao(database: AppDatabase): StudentDao {
+        return database.studentDao()
     }
 }
 
