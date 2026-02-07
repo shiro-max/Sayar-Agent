@@ -61,9 +61,30 @@ interface DriveRepository {
      * Clear cached folder data (on logout)
      */
     suspend fun clearCache()
+
+    /**
+     * Save user profile to Drive
+     */
+    suspend fun saveUserProfile(userJson: String): Result<DriveFile>
+
+    /**
+     * Load user profile from Drive
+     */
+    suspend fun loadUserProfile(): Result<String?>
+
+    /**
+     * Save chat history to Drive
+     */
+    suspend fun saveChatHistory(chatJson: String): Result<DriveFile>
+
+    /**
+     * Load chat history from Drive
+     */
+    suspend fun loadChatHistory(): Result<String?>
 }
 
 enum class FolderType {
+    ROOT,
     TIMETABLES,
     STUDENTS,
     DOCUMENTS

@@ -176,4 +176,94 @@ class DriveRepositoryImpl @Inject constructor(
             null
         }
     }
+
+    override suspend fun saveUserProfile(userJson: String): Result<DriveFile> {
+        return try {
+            val folders = getCachedFolders()
+                ?: return Result.failure(IllegalStateException("User folders not initialized"))
+
+            val file = driveService.uploadFile(
+                fileName = "profile.json",
+                mimeType = "application/json",
+                content = userJson.toByteArray(Charsets.UTF_8),
+                parentFolderId = folders.rootFolderId
+            )
+
+            Result.success(
+                DriveFile(
+                    id = file.id,
+                    name = file.name,
+                    mimeType = "application/json",
+                    size = file.getSize(),
+                    webViewLink = file.webViewLink
+                )
+            )
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    override suspend fun loadUserProfile(): Result<String?> {
+        return try {
+            val folders = getCachedFolders()
+                ?: return Result.success(null)
+
+            val files = driveService.listFiles(folders.rootFolderId)
+            val profileFile = files.find { it.name == "profile.json" }
+
+            if (profileFile != null) {
+                val content = driveService.downloadFile(profileFile.id)
+                Result.success(String(content, Charsets.UTF_8))
+            } else {
+                Result.success(null)
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    override suspend fun saveChatHistory(chatJson: String): Result<DriveFile> {
+        return try {
+            val folders = getCachedFolders()
+                ?: return Result.failure(IllegalStateException("User folders not initialized"))
+
+            val file = driveService.uploadFile(
+                fileName = "chat_history.json",
+                mimeType = "application/json",
+                content = chatJson.toByteArray(Charsets.UTF_8),
+                parentFolderId = folders.rootFolderId
+            )
+
+            Result.success(
+                DriveFile(
+                    id = file.id,
+                    name = file.name,
+                    mimeType = "application/json",
+                    size = file.getSize(),
+                    webViewLink = file.webViewLink
+                )
+            )
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    override suspend fun loadChatHistory(): Result<String?> {
+        return try {
+            val folders = getCachedFolders()
+                ?: return Result.success(null)
+
+            val files = driveService.listFiles(folders.rootFolderId)
+            val chatFile = files.find { it.name == "chat_history.json" }
+
+            if (chatFile != null) {
+                val content = driveService.downloadFile(chatFile.id)
+                Result.success(String(content, Charsets.UTF_8))
+            } else {
+                Result.success(null)
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
 }

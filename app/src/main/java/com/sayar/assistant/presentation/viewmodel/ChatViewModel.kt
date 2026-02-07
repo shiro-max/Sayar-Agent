@@ -36,6 +36,17 @@ class ChatViewModel @Inject constructor(
     private val _errorMessage = MutableStateFlow<String?>(null)
     val errorMessage: StateFlow<String?> = _errorMessage.asStateFlow()
 
+    init {
+        // Load chat history from Drive when ViewModel is created
+        loadChatHistory()
+    }
+
+    private fun loadChatHistory() {
+        viewModelScope.launch {
+            chatRepository.loadChatHistoryFromDrive()
+        }
+    }
+
     fun sendMessage(content: String) {
         if (content.isBlank()) return
 
@@ -43,7 +54,8 @@ class ChatViewModel @Inject constructor(
             _errorMessage.value = null
             when (val result = chatRepository.sendMessage(content)) {
                 is ChatResult.Success -> {
-                    // Message added automatically by repository
+                    // Save chat history to Drive after each message
+                    chatRepository.saveChatHistoryToDrive()
                 }
                 is ChatResult.Error -> {
                     _errorMessage.value = result.message
@@ -58,5 +70,9 @@ class ChatViewModel @Inject constructor(
 
     fun clearHistory() {
         chatRepository.clearHistory()
+        // Also clear from Drive
+        viewModelScope.launch {
+            chatRepository.saveChatHistoryToDrive()
+        }
     }
 }

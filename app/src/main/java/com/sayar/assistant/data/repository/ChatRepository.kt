@@ -1,17 +1,23 @@
 package com.sayar.assistant.data.repository
 
+import android.util.Log
 import com.sayar.assistant.data.remote.GeminiContent
 import com.sayar.assistant.data.remote.GeminiGenerationConfig
 import com.sayar.assistant.data.remote.GeminiPart
 import com.sayar.assistant.data.remote.GeminiRequest
 import com.sayar.assistant.data.remote.GeminiService
 import com.sayar.assistant.domain.model.ChatMessage
+import com.sayar.assistant.domain.repository.DriveRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 import javax.inject.Inject
 import javax.inject.Singleton
+
+private const val TAG = "ChatRepository"
 
 sealed class ChatResult {
     data class Success(val message: ChatMessage) : ChatResult()
@@ -21,7 +27,9 @@ sealed class ChatResult {
 @Singleton
 class ChatRepository @Inject constructor(
     private val geminiService: GeminiService,
-    private val settingsRepository: SettingsRepository
+    private val settingsRepository: SettingsRepository,
+    private val driveRepository: DriveRepository,
+    private val json: Json
 ) {
     private val _messages = MutableStateFlow<List<ChatMessage>>(emptyList())
     val messages: StateFlow<List<ChatMessage>> = _messages.asStateFlow()
@@ -30,6 +38,43 @@ class ChatRepository @Inject constructor(
     val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
 
     private val maxHistorySize = 10
+
+    suspend fun loadChatHistoryFromDrive() {
+        try {
+            driveRepository.loadChatHistory()
+                .onSuccess { chatJson ->
+                    if (chatJson != null) {
+                        val history = json.decodeFromString<ChatHistoryData>(chatJson)
+                        _messages.value = history.messages
+                        Log.d(TAG, "Loaded ${history.messages.size} messages from Drive")
+                    }
+                }
+                .onFailure { error ->
+                    Log.e(TAG, "Failed to load chat history from Drive", error)
+                }
+        } catch (e: Exception) {
+            Log.e(TAG, "Error loading chat history", e)
+        }
+    }
+
+    suspend fun saveChatHistoryToDrive() {
+        try {
+            val historyData = ChatHistoryData(
+                messages = _messages.value,
+                lastUpdated = System.currentTimeMillis()
+            )
+            val chatJson = json.encodeToString(historyData)
+            driveRepository.saveChatHistory(chatJson)
+                .onSuccess {
+                    Log.d(TAG, "Chat history saved to Drive")
+                }
+                .onFailure { error ->
+                    Log.e(TAG, "Failed to save chat history to Drive", error)
+                }
+        } catch (e: Exception) {
+            Log.e(TAG, "Error saving chat history", e)
+        }
+    }
 
     fun getRecentContext(): List<ChatMessage> {
         return _messages.value.takeLast(maxHistorySize)
@@ -140,3 +185,9 @@ class ChatRepository @Inject constructor(
         _messages.value = emptyList()
     }
 }
+
+@kotlinx.serialization.Serializable
+data class ChatHistoryData(
+    val messages: List<ChatMessage>,
+    val lastUpdated: Long
+)

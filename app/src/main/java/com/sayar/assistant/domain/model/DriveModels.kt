@@ -23,6 +23,7 @@ data class UserDriveFolders(
 ) {
     fun getFolderId(folderType: com.sayar.assistant.domain.repository.FolderType): String {
         return when (folderType) {
+            com.sayar.assistant.domain.repository.FolderType.ROOT -> rootFolderId
             com.sayar.assistant.domain.repository.FolderType.TIMETABLES -> timetablesFolderId
             com.sayar.assistant.domain.repository.FolderType.STUDENTS -> studentsFolderId
             com.sayar.assistant.domain.repository.FolderType.DOCUMENTS -> documentsFolderId

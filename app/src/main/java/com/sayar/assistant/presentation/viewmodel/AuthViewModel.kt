@@ -15,6 +15,8 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 import javax.inject.Inject
 
 private const val TAG = "AuthViewModel"
@@ -22,7 +24,8 @@ private const val TAG = "AuthViewModel"
 @HiltViewModel
 class AuthViewModel @Inject constructor(
     private val authRepository: AuthRepository,
-    private val driveRepository: DriveRepository
+    private val driveRepository: DriveRepository,
+    private val json: Json
 ) : ViewModel() {
 
     val currentUser: StateFlow<User?> = authRepository.currentUser
@@ -85,6 +88,11 @@ class AuthViewModel @Inject constructor(
                 .onSuccess { folders ->
                     Log.d(TAG, "Drive folders initialized successfully: ${folders.rootFolderId}")
                     _driveSetupState.value = DriveSetupState.Success(folders)
+
+                    // Save user profile to Drive
+                    currentUser.value?.let { user ->
+                        saveUserProfileToDrive(user)
+                    }
                 }
                 .onFailure { error ->
                     Log.e(TAG, "Failed to initialize Drive folders", error)
@@ -92,6 +100,30 @@ class AuthViewModel @Inject constructor(
                         error.message ?: "Failed to setup Drive folders"
                     )
                 }
+        }
+    }
+
+    private fun saveUserProfileToDrive(user: User) {
+        viewModelScope.launch {
+            try {
+                val userProfile = UserProfile(
+                    id = user.id,
+                    email = user.email,
+                    displayName = user.displayName,
+                    photoUrl = user.photoUrl,
+                    lastLogin = System.currentTimeMillis()
+                )
+                val profileJson = json.encodeToString(userProfile)
+                driveRepository.saveUserProfile(profileJson)
+                    .onSuccess {
+                        Log.d(TAG, "User profile saved to Drive")
+                    }
+                    .onFailure { error ->
+                        Log.e(TAG, "Failed to save user profile to Drive", error)
+                    }
+            } catch (e: Exception) {
+                Log.e(TAG, "Error saving user profile", e)
+            }
         }
     }
 
@@ -131,3 +163,12 @@ sealed class DriveSetupState {
     data class Success(val folders: UserDriveFolders) : DriveSetupState()
     data class Error(val message: String) : DriveSetupState()
 }
+
+@kotlinx.serialization.Serializable
+data class UserProfile(
+    val id: String,
+    val email: String,
+    val displayName: String?,
+    val photoUrl: String?,
+    val lastLogin: Long
+)
